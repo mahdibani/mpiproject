@@ -1,0 +1,120 @@
+package com.example.mpiproject;
+
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DeviceRVModal implements Parcelable {
+    private String devicename;
+    private String deviceprice;
+    private String deviceimage;
+    private String devicedescription;
+    private String deviceID;
+    public DeviceRVModal() {
+    }
+    protected DeviceRVModal(Parcel in) {
+        devicename = in.readString();
+        deviceprice = in.readString();
+        deviceimage = in.readString();
+        devicedescription = in.readString();
+        deviceID = in.readString();
+
+    }
+
+    public static final Creator<DeviceRVModal> CREATOR = new Creator<DeviceRVModal>() {
+        @Override
+        public DeviceRVModal createFromParcel(Parcel in) {
+            return new DeviceRVModal(in);
+        }
+
+        @Override
+        public DeviceRVModal[] newArray(int size) {
+            return new DeviceRVModal[size];
+        }
+    };
+
+    public String getDevicename() {
+
+        return devicename;
+    }
+
+    public void setDevicename(String devicename) {
+
+        this.devicename = devicename;
+    }
+
+    public String getDeviceprice() {
+
+        return deviceprice;
+    }
+
+    public void setDeviceprice(String deviceprice) {
+
+        this.deviceprice = deviceprice;
+    }
+
+    public String getDeviceimage() {
+
+        return deviceimage;
+    }
+
+    public void setDeviceimage(String deviceimage) {
+
+        this.deviceimage = deviceimage;
+    }
+
+    public String getDevicedescription() {
+
+        return devicedescription;
+    }
+
+    public void setDevicedescription(String devicedescription) {
+        this.devicedescription = devicedescription;
+    }
+
+    public String getDeviceID() {
+
+        return deviceID;
+    }
+
+    public void setDeviceID(String deviceID) {
+
+        this.deviceID = deviceID;
+    }
+
+
+    public DeviceRVModal(String devicename, String deviceprice, String deviceimage, String devicedescription,String deviceID) {
+        this.devicename = devicename;
+        this.deviceprice = deviceprice;
+        this.deviceimage = deviceimage;
+        this.devicedescription = devicedescription;
+        this.deviceID = deviceID;
+
+
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(devicename);
+        dest.writeString(deviceprice);
+        dest.writeString(deviceimage);
+        dest.writeString(devicedescription);
+        dest.writeString(deviceID);
+
+
+
+    }
+
+
+}
