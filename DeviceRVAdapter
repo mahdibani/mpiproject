@@ -1,0 +1,100 @@
+package com.example.mpiproject;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.Uri;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DeviceRVAdapter extends RecyclerView.Adapter<DeviceRVAdapter.ViewHolder> {
+    //ArrayList<Uri> imageUriList=new ArrayList<Uri>();
+    private ArrayList<DeviceRVModal>deviceRVModalArrayList;
+    private Context context;
+    int lastpos = -1;
+    private DeviceClickInterface deviceClickInterface;
+
+
+    public DeviceRVAdapter(ArrayList<DeviceRVModal> deviceRVModalArrayList, Context context,DeviceClickInterface deviceClickInterface) {
+        this.deviceRVModalArrayList = deviceRVModalArrayList;
+        this.context = context;
+        this.deviceClickInterface = deviceClickInterface;
+    }
+
+    @NonNull
+    @Override
+    public DeviceRVAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.device_rv_item,parent,false);
+        return new ViewHolder(view);
+    }
+
+
+    //public void onBindViewHolder(@NonNull DeviceRVAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    @Override
+    public void onBindViewHolder(@NonNull DeviceRVAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        DeviceRVModal deviceRVModal = deviceRVModalArrayList.get(position);
+
+        if (deviceRVModal != null) {
+            if (holder.deviceNameTV != null) {
+                holder.deviceNameTV.setText(deviceRVModal.getDevicename());
+            }
+            if (holder.devicePriceTV != null) {
+                holder.devicePriceTV.setText(deviceRVModal.getDeviceprice() + "dt");
+            }
+            if (holder.deviceIV != null) {
+                Picasso.get().load(deviceRVModal.getDeviceimage()).into(holder.deviceIV);
+            }
+
+            setAnimation(holder.itemView, position);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deviceClickInterface.onDeviceClick(position);
+                }
+            });
+        }
+    }
+
+    private void setAnimation(View itemview,int position){
+        if(position>lastpos){
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            itemview.startAnimation(animation);
+            lastpos=position;
+        }
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return deviceRVModalArrayList.size();
+    }
+
+    public interface DeviceClickInterface{
+        void onDeviceClick(int position);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView deviceNameTV,devicePriceTV;
+        private ImageView deviceIV;
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            deviceNameTV = itemView.findViewById(R.id.idTVDeviceName);
+            devicePriceTV = itemView.findViewById(R.id.idTVPrice);
+            deviceIV = itemView.findViewById(R.id.idIVDevice);
+        }
+    }
+
+}
