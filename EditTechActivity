@@ -1,0 +1,122 @@
+package com.example.mpiproject;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class EditTechActivity extends AppCompatActivity {
+    private TextInputEditText DeviceNameEdt,DevicePriceEdt,DeviceImageEdt,DeviceDescriptionEdt;
+    private MaterialButton updateDeviceBtn,deleteDeviceBtn;
+    private ProgressBar LoadingPB;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
+    private String deviceID;
+    private DeviceRVModal deviceRVModal;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_tech);
+        DeviceNameEdt = findViewById(R.id.idEdtDeviceName);
+        DevicePriceEdt = findViewById(R.id.idEdtDevicePrice);
+        DeviceImageEdt = findViewById(R.id.idEdtDeviceImageLink);
+        DeviceDescriptionEdt = findViewById(R.id.idEdtDeviceDescription);
+        updateDeviceBtn = findViewById(R.id.idBtnUpdateDevice);
+        deleteDeviceBtn = findViewById(R.id.idBtnDeleteDevice);
+        LoadingPB = findViewById(R.id.idPBLoading);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        deviceRVModal = getIntent().getParcelableExtra("device");
+        if(deviceRVModal!=null){
+            DeviceNameEdt.setText(deviceRVModal.getDevicename());
+            DevicePriceEdt.setText(deviceRVModal.getDeviceprice());
+            DeviceImageEdt.setText(deviceRVModal.getDeviceimage());
+            DeviceDescriptionEdt.setText(deviceRVModal.getDevicedescription());
+            deviceID = deviceRVModal.getDeviceID();
+        }
+
+        databaseReference = firebaseDatabase.getReference("devices").child(deviceID);
+        updateDeviceBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoadingPB.setVisibility(View.VISIBLE);
+                String devicename = DeviceNameEdt.getText().toString();
+                String deviceprice = DevicePriceEdt.getText().toString();
+                String deviceimage = DeviceImageEdt.getText().toString();
+                String devicedescription = DeviceDescriptionEdt.getText().toString();
+                Map<String,Object> map = new HashMap<>();
+                map.put("devicename",devicename);
+                map.put("deviceprice",deviceprice);
+                map.put("deviceimage",deviceimage);
+                map.put("devicedescription",devicedescription);
+                map.put("deviceID",deviceID);
+
+                databaseReference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        LoadingPB.setVisibility(View.GONE);
+                        databaseReference.updateChildren(map);
+                        Toast.makeText(EditTechActivity.this,"device updated",Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(EditTechActivity.this, TechActivity.class));
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(EditTechActivity.this,"fail to update device...",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        deleteDeviceBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                deletedevice();
+            }
+        });
+    }
+
+
+    private void deletedevice(){
+        Log.d("DeleteDevice", "Deleting device...");
+
+        databaseReference.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("DeleteDevice", "Device deleted successfully");
+                Toast.makeText(EditTechActivity.this, "Device deleted", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(EditTechActivity.this, TechActivity.class));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("DeleteDevice", "Failed to delete device: " + e.getMessage());
+                Toast.makeText(EditTechActivity.this, "Failed to delete device", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+}
